@@ -185,14 +185,20 @@ def DescargaArchivo(string):
     if string=='?':
         return ('Debe ingresar una URL de descarga.','text')    
     else:
-        try:
-            response = requests.get(string)
-            file_name = string.split("/")[-1]
-            with open(file_name, 'wb') as file:
-                file.write(response.content)
-            return (file_name,'adj')
-        except requests.exceptions.RequestException as e:
-            return(f'No se pudo descargar el archivo {file_name}\n Error:{str(e)}', 'text')
+        respuesta = requests.head(string)
+        if respuesta.status_code == 200:
+            #print('El archivo existe')
+            try:
+                response = requests.get(string)
+                file_name = string.split("/")[-1]
+                with open(file_name, 'wb') as file:
+                    file.write(response.content)
+                return (file_name,'adj')
+            except requests.exceptions.RequestException as e:
+                return(f'No se pudo descargar el archivo {file_name}\n Error:{str(e)}', 'text')
+        else:
+            return ('El archivo no existe', 'text')
+        
  
  #Ejecutamos un Hilo por cada entrada de descarga
 def run_DescargaArchivo(string):
