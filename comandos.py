@@ -183,23 +183,29 @@ def Leer_Report(string):
 #Descarga de archivos
 def DescargaArchivo(string):
     if string=='?':
-        return ('Debe ingresar una URL de descarga.','text')    
+        return ('Debe ingresar una URL de descarga.','text')
     else:
-        return ('Aun en construccion.','text') 
-        """
-        respuesta = requests.head(string)
-        if respuesta.status_code == 200:
-            #print('El archivo existe')
-            try:
-                response = requests.get(string)
-                file_name = string.split("/")[-1]
-                with open(file_name, 'wb') as file:
-                    file.write(response.content)
-                return (file_name,'adj')
-            except requests.exceptions.RequestException as e:
-                return(f'No se pudo descargar el archivo {file_name}\n Error:{str(e)}', 'text')
-        else:
-            return ('El archivo no existe', 'text')"""
+        try:#verificar si existe, si hay demora cancelar
+            respuesta = requests.head(string, timeout=10)
+            if respuesta.status_code == 200:
+                return ('Archivo aceptado para descarga', 'text')
+                try:#si existe intentamos descargarlo, si hay demora cancelamos
+                    print('intentar descargar')
+                    response = requests.get(string, timeout=40)
+                    file_name = string.split("/")[-1]
+                    with open(file_name, 'wb') as file:
+                        file.write(response.content)
+                    return (file_name,'adj')
+                except requests.exceptions.RequestException as e:
+                    return(f'No se pudo descargar el archivo {file_name}\n Error:{str(e)}', 'text')
+                except requests.exceptions.Timeout:
+                    print('Error: Tiempo de espera excedido')
+            else:
+                return ('El archivo no existe', 'text')
+        except:
+            pass
+        finally:
+            pass
         
  
  #Ejecutamos un Hilo por cada entrada de descarga
