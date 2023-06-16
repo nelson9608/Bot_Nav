@@ -185,6 +185,8 @@ def DescargaArchivo(string):
     if string=='?':
         return ('Debe ingresar una URL de descarga.','text')    
     else:
+        return ('Aun en construccion.','text') 
+        """
         respuesta = requests.head(string)
         if respuesta.status_code == 200:
             #print('El archivo existe')
@@ -197,7 +199,7 @@ def DescargaArchivo(string):
             except requests.exceptions.RequestException as e:
                 return(f'No se pudo descargar el archivo {file_name}\n Error:{str(e)}', 'text')
         else:
-            return ('El archivo no existe', 'text')
+            return ('El archivo no existe', 'text')"""
         
  
  #Ejecutamos un Hilo por cada entrada de descarga
