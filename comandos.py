@@ -9,6 +9,12 @@ from PIL import Image
 from io import BytesIO
 
 
+
+# Crea una lista para almacenar los mensajes
+conversation = []
+
+
+
 #Crear imagen con la AI   
 def Bot_GPT_Img(string):
     # Configurar la API key de OpenAI
@@ -134,17 +140,33 @@ def Buscador(string):
 #Chat con la AI   
 def Bot_GPT(string):
     openai.api_key = ai_token
+    
+    # Agrega el mensaje a la conversación
+    conversation.append(string)
+    # Si la conversación tiene más de 20 mensajes
+    # elimina el mensaje más antiguo
+    if len(conversation) > 20:
+        conversation.pop(0)
+        
+    # Concatena los mensajes anteriores para crear un contexto
+    context = '\n'.join(conversation)
+    
     # llamada a la respuesta
     response = openai.Completion.create(
         engine="text-davinci-003",
-        prompt=string,
+        prompt=(f"{context}\n {string}\nBot:"),
         max_tokens=1000,
         temperature=0.5,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
     )
-    return(response.choices[0].text,'text')
+    # Agrega la respuesta a la conversación
+    bot_response = response.choices[0].text.strip()
+    conversation.append(bot_response)
+    
+    return(bot_response,'text')
+    #return(response.choices[0].text,'text')
 
         
 
