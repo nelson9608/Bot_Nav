@@ -56,6 +56,9 @@ def mail(text, tipo):
     elif tipo == 'html':
         msg_p = MIMEText(text, 'html')
         msg_p.add_header('content-disposition', 'attachment', filename='web_index.html')
+    elif tipo == 'img':
+        msg_p = MIMEText(text, 'plain')
+        msg_p.add_header('content-disposition', 'attachment', filename=text)
     elif tipo == 'adj':
         archivo_adjunto = open(text, 'rb')
         msg_p = MIMEText('Archivo: '+text, 'html')

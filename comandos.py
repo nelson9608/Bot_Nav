@@ -34,7 +34,7 @@ def Bot_GPT_Img(string):
     image = Image.open(BytesIO(image_data))
     # Guardar la imagen en formato JPEG
     image.save("imagen_generada.jpg", "JPEG")
-    return ('imagen_generada.jpg','adj')
+    return ('imagen_generada.jpg','img')
 
 
 
