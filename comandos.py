@@ -33,7 +33,7 @@ def Bot_GPT_Img(string):
         image = Image.open(BytesIO(image_data))
         # Guardar la imagen en formato JPEG
         image.save("imagen_generada.jpg", "JPEG")
-        return ('imagen_generada.jpg','img')
+        return ('imagen_generada.jpg','adj')
     except:
         return ('No se pudo generar la imagen', 'txt')
 
@@ -87,7 +87,8 @@ def AdminHelp(string):
     /bot Realiza una pregunta al bot.\n
     /botimg Crea una imagen con AI desde una descripción\n 
     /web Busca una palabra, frase o dirección URL en la web devolviendo la página html asociada.\n
-    /descarga Descarga un archivo desde una URL.
+    /descarga Descarga un archivo desde una URL.\n
+    /descarga2 Descarga un archivo desde una URL dividiendolo en partes de 5Mb.
     '''
     return (Ayuda, 'text')
 
