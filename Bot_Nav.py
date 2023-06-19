@@ -53,6 +53,9 @@ def mail(text, tipo):
     # print('mensaje saliente:'+ cliente)
     if tipo == 'text':
         msg_p = MIMEText(text, 'plain')
+    elif tipo == 'multi':
+        MultiEnvio(text, cliente)
+        msg_p = MIMEText('Son todas las partes.\nYa puedes unirlas.', 'plain')
     elif tipo == 'html':
         msg_p = MIMEText(text, 'html')
         msg_p.add_header('content-disposition', 'attachment', filename='web_index.html')
@@ -84,6 +87,35 @@ def mail(text, tipo):
         os.unlink(text)
     except:
         pass
+
+#---------------------------------------------------------------------------
+def MultiEnvio(files, user):   
+    # Loop del multi envio
+    for file in files:
+        #creando el email
+        msg = MIMEMultipart()
+        msg['From'] = radr
+        msg['To'] = cliente
+        msg['Subject'] = ""
+        msg.attach(MIMEText(message))
+
+        # preparandolos
+        with open(file, 'rb') as f:
+            attachment = MIMEText(f.read())
+            attachment.add_header('Content-Disposition', 'attachment', filename=file)
+            msg.attach(attachment)
+
+        # enviandolo
+        #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        #    server.login(sender_email, password)
+            
+        s.sendmail(radr, cliente, msg.as_string())
+
+        #print('Enviado un ' +tipo+' a '+cliente )
+        #print('contenido: '+text)
+        if os.path.exists(file):
+            os.remove(file)
+#---------------------------------------------------------------------------
 
 
 def analyze_msg(raws, a):

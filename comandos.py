@@ -17,24 +17,25 @@ conversation = []
 
 #Crear imagen con la AI   
 def Bot_GPT_Img(string):
-    # Configurar la API key de OpenAI
-    openai.api_key = ai_token
-
-    # Generar la imagen utilizando DALL-E
-    response = openai.Image.create(
-    prompt=string,
-    n=1,
-    size="512x512"
-    )
-    # Obtener la URL de la imagen generada
-    image_url = response['data'][0]['url']
-
-    # Descargar la imagen y mostrarla en Python
-    image_data = requests.get(image_url).content
-    image = Image.open(BytesIO(image_data))
-    # Guardar la imagen en formato JPEG
-    image.save("imagen_generada.jpg", "JPEG")
-    return ('imagen_generada.jpg','img')
+    try:
+        # Configurar la API key de OpenAI
+        openai.api_key = ai_token
+        # Generar la imagen utilizando DALL-E
+        response = openai.Image.create(
+        prompt=string,
+        n=1,
+        size="512x512"
+        )
+        # Obtener la URL de la imagen generada
+        image_url = response['data'][0]['url']
+        # Descargar la imagen y mostrarla en Python
+        image_data = requests.get(image_url).content
+        image = Image.open(BytesIO(image_data))
+        # Guardar la imagen en formato JPEG
+        image.save("imagen_generada.jpg", "JPEG")
+        return ('imagen_generada.jpg','img')
+    except:
+        return ('No se pudo generar la imagen', 'txt')
 
 
 
@@ -231,6 +232,53 @@ def DescargaArchivo(string):
             return ('Error al verificar el archivo', 'text')
         
  
+ 
+ 
+ #-------------------------------------------------------------------
+def DescargaArchivo2(string):
+    if string == '?':
+        return ('Debe ingresar una URL de descarga.', 'text')
+    else:
+        try:
+            # Verificar si el archivo existe y cancelar si hay demora
+            respuesta = requests.head(string, timeout=10)
+            if respuesta.status_code == 200:
+                # Archivo aceptado para descarga
+                try:
+                    # Descargar el archivo y cancelar si hay demora
+                    response = requests.get(string, timeout=40)
+                    file_name = string.split("/")[-1]
+                    # Dividir el archivo en partes de 5MB si pesa más de 5MB
+                    if len(response.content) > 5 * 1024 * 1024:
+                        with open(file_name, 'wb') as f:
+                            # Escribir cada parte en un archivo separado
+                            for i, chunk in enumerate(response.iter_content(chunk_size=5 * 1024 * 1024)):
+                                part_filename = f'{file_name}.{i+1:03d}'
+                                with open(part_filename, 'wb') as part:
+                                    part.write(chunk)
+                                parts.append(part_filename)
+                        return (parts, 'multi')
+                    else:
+                        with open(file_name, 'wb') as file:
+                            file.write(response.content)
+                        return (file_name, 'adj')
+                except requests.exceptions.RequestException as e:
+                    return (f'No se pudo descargar el archivo {file_name}n Error: {str(e)}', 'text')
+                except requests.exceptions.Timeout:
+                    return ('Error: Tiempo de espera excedido en la descarga', 'text')
+            else:
+                return ('El archivo no existe', 'text')
+        except requests.exceptions.Timeout:
+            return ('Error: Tiempo de espera excedido en la respuesta del sitio', 'text')
+        except requests.exceptions.RequestException:
+            return ('Error al verificar el archivo', 'text')
+#---------------------------------------------------------------------------------------------
+ 
+ 
+ 
+ 
+ 
+ 
  #Ejecutamos un Hilo por cada entrada de descarga
 def run_DescargaArchivo(string):
     rda = Multihilos2(target=DescargaArchivo, args=(string,))
@@ -238,6 +286,12 @@ def run_DescargaArchivo(string):
     rda.join()
     return rda.result   
 
+ #este el de prueba
+def run_DescargaArchivo2(string):
+    rda = Multihilos2(target=DescargaArchivo2, args=(string,))
+    rda.start()
+    rda.join()
+    return rda.result 
 
 #Ejecutamos un Hilo por cada entrada de busqueda
 def run_Buscador(string):
@@ -292,5 +346,6 @@ admincommand = {
     '/web': run_Buscador,
     '/bot':Bot_GPT,
     '/botimg':run_BotIMG,
-    '/descarga':run_DescargaArchivo
+    '/descarga':run_DescargaArchivo,
+    '/descarga2':run_DescargaArchivo2
 }
