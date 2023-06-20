@@ -242,11 +242,13 @@ def DescargaArchivo2(string):
         return ('Debe ingresar una URL de descarga.', 'text')
     else:
         try:
+            print('Verificando la existencia del archivo...')
             # Verificar si el archivo existe y cancelar si hay demora
             respuesta = requests.head(string, timeout=10)
             if respuesta.status_code == 200:
                 # Archivo aceptado para descarga
                 try:
+                    print('Existe!!, Intentando descargar...')
                     # Descargar el archivo y cancelar si hay demora
                     response = requests.get(string )#,timeout=40
                     file_name = string.split("/")[-1]
@@ -255,10 +257,12 @@ def DescargaArchivo2(string):
                         with open(file_name, 'wb') as f:
                             # Escribir cada parte en un archivo separado
                             for i, chunk in enumerate(response.iter_content(chunk_size=5 * 1024 * 1024)):
+                                print('Tiene mas de 10Mb, cortemoslo!!')
                                 part_filename = f'{file_name}.{i+1:03d}'
                                 with open(part_filename, 'wb') as part:
                                     part.write(chunk)
                                 parts.append(part_filename)
+                        print('Dando salida')
                         return (parts, 'multi')
                     else:
                         with open(file_name, 'wb') as file:
