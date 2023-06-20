@@ -216,7 +216,8 @@ def DescargaArchivo(string):
                 # Archivo aceptado para descarga
                 try:
                     # Descargar el archivo y cancelar si hay demora
-                    response = requests.get(string, timeout=40)
+                    response = requests.get(string)#,timeout=40
+                    #response = urllib.requests.urlopen(string)
                     file_name = string.split("/")[-1]
                     with open(file_name, 'wb') as file:
                         file.write(response.content)
@@ -247,7 +248,7 @@ def DescargaArchivo2(string):
                 # Archivo aceptado para descarga
                 try:
                     # Descargar el archivo y cancelar si hay demora
-                    response = requests.get(string, timeout=40)
+                    response = requests.get(string )#,timeout=40
                     file_name = string.split("/")[-1]
                     # Dividir el archivo en partes de 5MB si pesa más de 5MB
                     if len(response.content) > 5 * 1024 * 1024:
