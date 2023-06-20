@@ -238,6 +238,7 @@ def DescargaArchivo(string):
  
  #-------------------------------------------------------------------
 def DescargaArchivo2(string):
+    parts = []
     if string == '?':
         return ('Debe ingresar una URL de descarga.', 'text')
     else:
