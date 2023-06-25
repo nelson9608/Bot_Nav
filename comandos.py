@@ -1,10 +1,8 @@
 from config import *
-import os, re, requests, queue
+import os, time, re, requests, queue, threading, openai, zipfile
 from bs4 import BeautifulSoup
 import urllib.parse
 from urllib.parse import urlparse
-import threading
-import openai
 from PIL import Image
 from io import BytesIO
 
@@ -251,24 +249,36 @@ def DescargaArchivo2(string):
                 try:
                     print('Existe!!, Intentando descargar...')
                     # Descargar el archivo y cancelar si hay demora
-                    response = requests.get(string )#,timeout=40
+                    # Download the file from the URL
+                    response = requests.get(string)
+                    file_size = int(response.headers.get("Content-Length", 0))
                     file_name = string.split("/")[-1]
-                    # Dividir el archivo en partes de 5MB si pesa más de 5MB
-                    if len(response.content) > 5 * 1024 * 1024:
-                        with open(file_name, 'wb') as f:
-                            # Escribir cada parte en un archivo separado
-                            for i, chunk in enumerate(response.iter_content(chunk_size=5 * 1024 * 1024)):
-                                print('Tiene mas de 10Mb, cortemoslo!!')
-                                part_filename = f'{file_name}.{i+1:03d}'
-                                with open(part_filename, 'wb') as part:
-                                    part.write(chunk)
-                                parts.append(part_filename)
-                        print('Dando salida')
-                        return (parts, 'multi')
-                    else:
-                        with open(file_name, 'wb') as file:
-                            file.write(response.content)
-                        return (file_name, 'adj')
+                    file_path = os.path.join(os.getcwd(), file_name)
+                    with open(file_path, "wb") as f:
+                        for data in response.iter_content(1024):
+                            f.write(data)
+
+                    # Compress the file into a zip file
+                    zip_file_name = file_name.split(".")[0] + ".zip"
+                    zip_file_path = os.path.join(os.getcwd(), zip_file_name)
+                    with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                        if file_size < 10 * 1024 * 1024:
+                            zip_file.write(file_path, file_name)
+                        else:
+                            part_num = 1
+                            with open(file_path, "rb") as f:
+                                while True:
+                                    part_data = f.read(10 * 1024 * 1024)
+                                    if not part_data:
+                                        break
+                                    part_file_name = f"{file_name}.part{part_num}"
+                                    zip_file.writestr(part_file_name, part_data)
+                                    part_num += 1
+                                    parts.append(part_filename)
+                            print('Dando salida')
+                            print(parts)
+                            return (parts, 'multi')
+                                
                 except requests.exceptions.RequestException as e:
                     return (f'No se pudo descargar el archivo {file_name}n Error: {str(e)}', 'text')
                 except requests.exceptions.Timeout:
@@ -330,7 +340,10 @@ class Multihilos2(threading.Thread):
     def result(self):
         return self._result
     
-
+def Tiempo(string):
+    return ('Mi primer retorno', 'text')
+    time.sleep(5)
+    return ('Retorno despues de dormir 5 seg', 'text')
  
 #Comanod para los usuarios       
 commands = {
@@ -354,5 +367,6 @@ admincommand = {
     '/bot':Bot_GPT,
     '/botimg':run_BotIMG,
     '/descarga':run_DescargaArchivo,
-    '/descarga2':run_DescargaArchivo2
+    '/descarga2':run_DescargaArchivo2,
+    '/time':Tiempo
 }

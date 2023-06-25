@@ -14,7 +14,7 @@ from os.path import basename
 
 # Ampliando la limitacion imap
 imaplib._MAXLINE = 1000000
-cliente = ''
+global cliente
 
 
 def imap_init():
@@ -97,12 +97,11 @@ def MultiEnvio(files, user):
         msg['From'] = radr
         msg['To'] = cliente
         msg['Subject'] = ""
-        msg.attach(MIMEText(message))
+        msg.attach(MIMEText('Se supone es un texto'))
 
         # preparandolos
         with open(file, 'rb') as f:
-            attachment = MIMEText(f.read())
-            attachment.add_header('Content-Disposition', 'attachment', filename=file)
+            attachment = MIMEApplication(f.read())
             msg.attach(attachment)
 
         # enviandolo
@@ -168,6 +167,18 @@ if __name__ == '__main__':
     imap_init()
     print(f'Bot iniciado en ({radr})')
      
+
+def command_function(user, cmds):
+    salida = commands[cmds[0]](cmds[1])
+    smtp_init()
+    mail(salida[0], salida[1])
+    
+def admincommand_function(user, cmds):
+    salida = admincommand[cmds[0]](cmds[1])
+    smtp_init()
+    print(salida)
+    #mail(salida[0], salida[1])
+
     
     
 while True:  # Revicion constante
@@ -184,6 +195,7 @@ while True:  # Revicion constante
             if cmds is None:
                 continue
             elif cmds is False:  # Comando no valido
+                print('Comando no valido')
                 t = 'Comando no válido!!!\nLos comandos disponibles son: \n'
                 for l in commands.keys():
                     t = t + str(l) + "\n"
@@ -192,15 +204,26 @@ while True:  # Revicion constante
             else:
                 if cliente != admin: #Salida para los clientes
                     print('USER: '+cliente)
-                    salida = commands[cmds[0]](cmds[1])
-                    smtp_init()
-                    mail(salida[0], salida[1])
+                    # Crear un hilo para el comando de usuario
+                    user_thread = threading.Thread(target=command_function, args=(cmds,))
+                    user_thread.start()
+                    #salida = commands[cmds[0]](cmds[1])
+                    #smtp_init()
+                    #mail(salida[0], salida[1])
                     #print(salida)
                 else: #salida para el admin
                     print('ADMIN')
-                    salida = admincommand[cmds[0]](cmds[1])
-                    smtp_init()
-                    mail(salida[0], salida[1])
+                    
+                    print(cliente)
+                    # Crear un hilo para el usuario
+                    user_thread = threading.Thread(target=admincommand_function, args=(cliente, cmds))
+                    
+                    # Crear un hilo para el comando de usuario
+                    #user_thread = threading.Thread(target=admincommand_function, args=(cmds,))
+                    user_thread.start()
+                    #salida = admincommand[cmds[0]](cmds[1])
+                    #smtp_init()
+                    #mail(salida[0], salida[1])
                     
                     
     except OSError as e:
