@@ -7,3 +7,5 @@ beautifulsoup4==4.12.2
 bs4==0.0.1
 openai==0.27.8
 pillow==9.5.0
+threaded==4.1.0
+zipfile36==0.1.3
