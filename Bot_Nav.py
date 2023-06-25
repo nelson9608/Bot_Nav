@@ -171,13 +171,14 @@ if __name__ == '__main__':
 def command_function(user, cmds):
     salida = commands[cmds[0]](cmds[1])
     smtp_init()
+    #print(salida)
     mail(salida[0], salida[1])
     
 def admincommand_function(user, cmds):
     salida = admincommand[cmds[0]](cmds[1])
     smtp_init()
-    print(salida)
-    #mail(salida[0], salida[1])
+    #print(salida)
+    mail(salida[0], salida[1])
 
     
     
