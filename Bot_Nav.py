@@ -24,6 +24,8 @@ from io import BytesIO
 # Ampliando la limitacion imap
 imaplib._MAXLINE = 1000000
 global cliente
+global s
+global i
 # Crea una lista para almacenar los mensajes
 conversation = []
 
@@ -498,14 +500,50 @@ def MultiEnvio(files, user):
 
 def analyze_msg(raws, a):
     global cliente
-    # print("Analizar mensaje segun ID " + str(a))
+    global cmd
     msg = pyzmail.PyzMessage.factory(raws[a][b'BODY[]'])
     frm = msg.get_addresses('from')
-    cliente = frm[0][1] # obtenemos a quien responder la solicitud
+    cliente = frm[0][1]
+
+    # Get text from message and remove signature
+    text = msg.text_part.get_payload().decode(msg.text_part.charset)
+    text = re.sub(r'--\s*\n.*', '', text, flags=re.DOTALL)
+
+    # Extract command from text
+    match = re.search(r'^/(\w+)', text.strip())
+    if match:
+        cmd = '/'+match.group(1)
+        print(cmd)
+        if frm[0][1] != admin:
+            
+            if cmd not in commands:
+                return False
+            else:
+                try:
+                    arg = text.split(' ', 1)[1]
+                except IndexError:
+                    arg = '?'
+                return [cmd, arg]
+        else:
+            if cmd not in admincommand:
+                return False
+            else:
+                try:
+                    arg = text.split(' ', 1)[1]
+                except IndexError:
+                    arg = '?'
+                return [cmd, arg]
+    else:
+        return False
+    
+    
+
+"""def analyze_msg(raws, a):
+    global cliente
+    msg = pyzmail.PyzMessage.factory(raws[a][b'BODY[]'])
+    frm = msg.get_addresses('from')
+    cliente = frm[0][1] # obtenemos a quien responder la solicitud      
     #print(cliente)
-
-
-
     # Administracion del bot
     if frm[0][1] != admin:
         print('Cliente: '+cliente)
@@ -538,7 +576,7 @@ def analyze_msg(raws, a):
                 return cmds
             except IndexError:
                 cmds.append('?')
-                return cmds
+                return cmds"""
 
 
 
@@ -546,18 +584,6 @@ if __name__ == '__main__':
     imap_init()
     print(f'Bot iniciado en ({radr})')
      
-
-def command_function(user, cmds):
-    salida = commands[cmds[0]](cmds[1])
-    smtp_init()
-    #print(salida)
-    mail(salida[0], salida[1])
-    
-def admincommand_function(user, cmds):
-    salida = admincommand[cmds[0]](cmds[1])
-    smtp_init()
-    #print(salida)
-    mail(salida[0], salida[1])
 
     
     
@@ -576,11 +602,10 @@ while True:  # Revicion constante
                 continue
             elif cmds is False:  # Comando no valido
                 print('Comando no valido')
-                t = 'Comando no válido!!!\nLos comandos disponibles son: \n'
-                for l in commands.keys():
-                    t = t + str(l) + "\n"
-                mail(t, 'text') #enviamos un email de tipo texto
-                continue
+                Nota = 'Comando no valido\nEnvíe el comando /ayuda para ver una lista de los que se encuentran  disponibles.'
+                smtp_init()
+                mail(Nota, 'text') #enviamos un email de tipo texto"""
+                continue            
             else:
                 if cliente != admin: #Salida para los clientes
                     print('USER: '+cliente)
