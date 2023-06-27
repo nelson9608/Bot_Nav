@@ -351,7 +351,8 @@ def DescargaArchivo2(string):
             
             # Retornar la lista de nombres de cada archivo zip obtenido
             print (lista_nombres_archivos_zip)
-            return (lista_nombres_archivos_zip, 'multi')
+            MultiEnvio (lista_nombres_archivos_zip, cliente)
+            return('Terminado!!', 'text')
     
     # Retornar una lista con el nombre del archivo descargado
     #print (nombre_archivo)            
@@ -519,7 +520,7 @@ def MultiEnvio(files, user):
         #creando el email
         msg = MIMEMultipart()
         msg['From'] = radr
-        msg['To'] = cliente
+        msg['To'] = user
         msg['Subject'] = ""
         msg.attach(MIMEText('Se supone es un texto'))
 
@@ -532,7 +533,7 @@ def MultiEnvio(files, user):
         #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
         #    server.login(sender_email, password)
             
-        s.sendmail(radr, cliente, msg.as_string())
+        s.sendmail(radr, user, msg.as_string())
 
         #print('Enviado un ' +tipo+' a '+cliente )
         #print('contenido: '+text)
