@@ -254,7 +254,7 @@ def DescargaArchivo(string):
  
  
  #-------------------------------------------------------------------
-def DescargaArchivo2(string):
+"""def DescargaArchivo2(string):
     print('Descarga2')
     print(f'es para {cliente}')
     aquien = cliente
@@ -311,7 +311,50 @@ def DescargaArchivo2(string):
         except requests.exceptions.Timeout:
             return ('Error: Tiempo de espera excedido en la respuesta del sitio', 'text')
         except requests.exceptions.RequestException:
-            return ('Error al verificar el archivo', 'text')
+            return ('Error al verificar el archivo', 'text')"""
+            
+            
+def DescargaArchivo2(string):
+    # Obtener el nombre del archivo de la URL
+    nombre_archivo = os.path.basename(string)
+    
+    # Comprobar si el archivo existe o está disponible para su descarga
+    headers = {'User-Agent': 'Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14'}
+    respuesta = requests.head(string, headers=headers)
+    print(respuesta)
+    if respuesta.status_code != 200:
+        print("El archivo no existe o no está disponible para su descarga")
+        #return []
+    else:
+        # Descargar el archivo
+        print('Descargando... sea paciente')
+        respuesta = requests.get(string, headers=headers)
+        with open(nombre_archivo, 'wb') as archivo:
+            archivo.write(respuesta.content)
+        
+        # Comprobar si el archivo es mayor de 5Mb
+        tamano_archivo = os.path.getsize(nombre_archivo)
+        if tamano_archivo > 5 * 1024 * 1024:
+            # Crear archivos zip de 5Mb
+            tamano_partes = 5 * 1024 * 1024
+            num_partes = (tamano_archivo + tamano_partes - 1) // tamano_partes
+            lista_nombres_archivos_zip = []
+            with open(nombre_archivo, 'rb') as archivo_origen:
+                for i in range(num_partes):
+                    nombre_archivo_zip = f"{nombre_archivo}_{i}.zip"
+                    lista_nombres_archivos_zip.append(nombre_archivo_zip)
+                    with zipfile.ZipFile(nombre_archivo_zip, mode='w', compression=zipfile.ZIP_DEFLATED) as archivo_zip:
+                        archivo_zip.writestr(nombre_archivo, archivo_origen.read(tamano_partes))
+            
+            # Borrar el archivo original
+            #os.remove(nombre_archivo)
+            
+            # Retornar la lista de nombres de cada archivo zip obtenido
+            print (lista_nombres_archivos_zip)
+            return (lista_nombres_archivos_zip, 'multi')
+    
+    # Retornar una lista con el nombre del archivo descargado
+    #print (nombre_archivo)            
 #---------------------------------------------------------------------------------------------
  
  
