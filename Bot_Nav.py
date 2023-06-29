@@ -9,7 +9,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from os.path import basename
 
-import requests, queue, threading, openai, zipfile
+import requests, queue, threading, openai, pyzipper
 from bs4 import BeautifulSoup
 import urllib.parse
 from urllib.parse import urlparse
@@ -230,7 +230,7 @@ def DescargaArchivo(url):
         respuesta = requests.head(url, headers=headers)
         respuesta.raise_for_status()  # Lanza una excepción si hay un error en la respuesta
     except requests.exceptions.HTTPError as err:
-        print(f"Error al descargar el archivo: {err}")
+        #print(f"Error al descargar el archivo: {err}")
         return ('Error al descargar el archivo', 'text')
     
     # Descargar el archivo
@@ -242,17 +242,21 @@ def DescargaArchivo(url):
                 for chunk in r.iter_content(chunk_size=8192):
                     archivo.write(chunk)
     except requests.exceptions.RequestException as err:
-        print(f"Error al descargar el archivo: {err}")
+        #print(f"Error al descargar el archivo: {err}")
         return ('Error al descargar el archivo', 'text')
     
     # Compactar y picar
     lista = []
+    password='bot'
     chunk_size = 10 * 1024 * 1024
+    file_object = open(nombre_archivo, 'rb')
     file_size = os.stat(nombre_archivo).st_size
-    
+
+    # Si el archivo es menor a 10MB, lo comprimimos en un archivo zip
     if file_size < chunk_size:
-        zip_file_name = nombre_archivo + '.zip.quitaesto'
-        with zipfile.ZipFile(zip_file_name, 'w') as zip_file:
+        zip_file_name = nombre_archivo + '.zip'
+        with pyzipper.AESZipFile(zip_file_name, 'w', compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES) as zip_file:        
+            zip_file.setpassword(password.encode())
             zip_file.write(nombre_archivo)
         lista.append(zip_file_name)
     else:
@@ -430,7 +434,7 @@ def MultiEnvio(files, user):
         msg['From'] = radr
         msg['To'] = user
         msg['Subject'] = ""
-        #msg.attach(MIMEText('Se supone es un texto'))
+        msg.attach(MIMEText('La contraseña para los zip es: bot'))
 
         # preparandolos
         with open(file, 'rb') as f:
