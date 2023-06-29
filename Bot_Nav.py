@@ -1,5 +1,4 @@
 from config import *
-#from comandos import *
 import imapclient, imaplib, pyzmail, smtplib, time, os, re
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
@@ -10,9 +9,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from os.path import basename
 
-#del modulo comandos
-#from config import *
-import requests, queue, threading, openai, zipfile # os,re,time,
+import requests, queue, threading, openai, zipfile
 from bs4 import BeautifulSoup
 import urllib.parse
 from urllib.parse import urlparse
@@ -221,103 +218,11 @@ def Leer_Report(string):
 
 
 
-#Descarga de archivos
+#Descarga de archivos         
 def DescargaArchivo(string):
-    if string == '?':
-        return ('Debe ingresar una URL de descarga.', 'text')
-    else:
-        try:
-            # Verificar si el archivo existe y cancelar si hay demora
-            respuesta = requests.head(string, timeout=10)
-            if respuesta.status_code == 200:
-                # Archivo aceptado para descarga
-                try:
-                    # Descargar el archivo y cancelar si hay demora
-                    response = requests.get(string)#,timeout=40
-                    #response = urllib.requests.urlopen(string)
-                    file_name = string.split("/")[-1]
-                    with open(file_name, 'wb') as file:
-                        file.write(response.content)
-                    return (file_name, 'adj')
-                except requests.exceptions.RequestException as e:
-                    return (f'No se pudo descargar el archivo {file_name}n Error: {str(e)}', 'text')
-                except requests.exceptions.Timeout:
-                    return ('Error: Tiempo de espera excedido', 'text')
-            else:
-                return ('El archivo no existe', 'text')
-        except requests.exceptions.Timeout:
-            return ('Error: Tiempo de espera excedido', 'text')
-        except requests.exceptions.RequestException:
-            return ('Error al verificar el archivo', 'text')
-        
- 
- 
- 
- #-------------------------------------------------------------------
-"""def DescargaArchivo2(string):
-    print('Descarga2')
-    print(f'es para {cliente}')
-    aquien = cliente
-    parts = []
-    if string == '?':
-        return ('Debe ingresar una URL de descarga.', 'text')
-    else:
-        try:
-            print('Verificando la existencia del archivo...')
-            # Verificar si el archivo existe y cancelar si hay demora
-            respuesta = requests.head(string, timeout=10)
-            if respuesta.status_code == 200:
-                # Archivo aceptado para descarga
-                return ('URL aceptada, Intentando descargar!!\nEsto puede demorar unos minutos sea paciente.','text')
-                try:
-                    print('Existe!!, Intentando descargar...')              
-                    # Descargar el archivo y cancelar si hay demora
-                    # Download the file from the URL
-                    response = requests.get(string)
-                    file_size = int(response.headers.get("Content-Length", 0))
-                    file_name = string.split("/")[-1]
-                    file_path = os.path.join(os.getcwd(), file_name)
-                    with open(file_path, "wb") as f:
-                        for data in response.iter_content(1024):
-                            f.write(data)
-
-                    # Compress the file into a zip file
-                    zip_file_name = file_name.split(".")[0] + ".zip"
-                    zip_file_path = os.path.join(os.getcwd(), zip_file_name)
-                    with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
-                        if file_size < 10 * 1024 * 1024:
-                            zip_file.write(file_path, file_name)
-                        else:
-                            part_num = 1
-                            with open(file_path, "rb") as f:
-                                while True:
-                                    part_data = f.read(10 * 1024 * 1024)
-                                    if not part_data:
-                                        break
-                                    part_file_name = f"{file_name}.part{part_num}"
-                                    zip_file.writestr(part_file_name, part_data)
-                                    part_num += 1
-                                    parts.append(part_filename)
-                            print('Dando salida')
-                            print(parts)
-                            MultiEnvio(parts, aquien)
-                                
-                except requests.exceptions.RequestException as e:
-                    return (f'No se pudo descargar el archivo {file_name}n Error: {str(e)}', 'text')
-                except requests.exceptions.Timeout:
-                    return ('Error: Tiempo de espera excedido en la descarga', 'text')
-            else:
-                return ('El archivo no existe', 'text')
-        except requests.exceptions.Timeout:
-            return ('Error: Tiempo de espera excedido en la respuesta del sitio', 'text')
-        except requests.exceptions.RequestException:
-            return ('Error al verificar el archivo', 'text')"""
-            
-            
-def DescargaArchivo2(string):
     # Obtener el nombre del archivo de la URL
     nombre_archivo = os.path.basename(string)
-    
+    usr = cliente
     # Comprobar si el archivo existe o está disponible para su descarga
     headers = {'User-Agent': 'Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14'}
     respuesta = requests.head(string, headers=headers)
@@ -328,34 +233,45 @@ def DescargaArchivo2(string):
     else:
         # Descargar el archivo
         print('Descargando... sea paciente')
-        respuesta = requests.get(string, headers=headers)
+        #respuesta = requests.get(string, headers=headers)
         with open(nombre_archivo, 'wb') as archivo:
             archivo.write(respuesta.content)
         
-        # Comprobar si el archivo es mayor de 5Mb
-        tamano_archivo = os.path.getsize(nombre_archivo)
-        if tamano_archivo > 5 * 1024 * 1024:
-            # Crear archivos zip de 5Mb
-            tamano_partes = 5 * 1024 * 1024
-            num_partes = (tamano_archivo + tamano_partes - 1) // tamano_partes
-            lista_nombres_archivos_zip = []
-            with open(nombre_archivo, 'rb') as archivo_origen:
-                for i in range(num_partes):
-                    nombre_archivo_zip = f"{nombre_archivo}_{i}.zip"
-                    lista_nombres_archivos_zip.append(nombre_archivo_zip)
-                    with zipfile.ZipFile(nombre_archivo_zip, mode='w', compression=zipfile.ZIP_DEFLATED) as archivo_zip:
-                        archivo_zip.writestr(nombre_archivo, archivo_origen.read(tamano_partes))
+        # Compactar y picar
+        lista = []
+        chunk_size = 10 *1024 *1024
+        file_object = open(nombre_archivo, 'rb')
+        file_size = os.stat(nombre_archivo).st_size
+        # Si el archivo es menor a 10MB, lo comprimimos en un archivo zip
+        if file_size < chunk_size:
+            zip_file_name = nombre_archivo + '.zip'
+            zip_file = zipfile.ZipFile(zip_file_name, 'w')
+            zip_file.write(nombre_archivo)
+            zip_file.close()
+            lista.append(zip_file_name)
+        else:
+            # Calcula el número de volúmenes
+            chunk_count = int(file_size / chunk_size)
+            for i in range(chunk_count):
+                # Abre el archivo de destino
+                output_file_name = f'{nombre_archivo}.{i+1:03d}'
+                output_file_object = open(output_file_name, 'wb')
+                # Lee el tamaño del volumen
+                data = file_object.read(chunk_size)
+                # Escribe el volumen
+                output_file_object.write(data)
+                output_file_object.close()
+                lista.append(output_file_name)
+        file_object.close()
             
-            # Borrar el archivo original
-            #os.remove(nombre_archivo)
-            
-            # Retornar la lista de nombres de cada archivo zip obtenido
-            print (lista_nombres_archivos_zip)
-            MultiEnvio (lista_nombres_archivos_zip, cliente)
-            return('Terminado!!', 'text')
+        # Retornar la lista de nombres de cada archivo zip obtenido
+        print (lista_nombres_archivos_zip)
+        MultiEnvio (lista, usr)
+        #os.remove(nombre_archivo)
+        return('Terminado!!', 'text')
     
-    # Retornar una lista con el nombre del archivo descargado
-    #print (nombre_archivo)            
+        # Retornar una lista con el nombre del archivo descargado
+        #print (nombre_archivo)          
 #---------------------------------------------------------------------------------------------
  
  
@@ -369,13 +285,6 @@ def run_DescargaArchivo(string):
     rda.start()
     rda.join()
     return rda.result   
-
- #este el de prueba
-def run_DescargaArchivo2(string):
-    rda = Multihilos2(target=DescargaArchivo2, args=(string,))
-    rda.start()
-    rda.join()
-    return rda.result 
 
 #Ejecutamos un Hilo por cada entrada de busqueda
 def run_Buscador(string):
@@ -434,7 +343,6 @@ admincommand = {
     '/bot':Bot_GPT,
     '/botimg':run_BotIMG,
     '/descarga':run_DescargaArchivo,
-    '/descarga2':run_DescargaArchivo2,
     '/time':Tiempo
 }
 
@@ -514,7 +422,8 @@ def mail(text, tipo):
         pass
 
 #---------------------------------------------------------------------------
-def MultiEnvio(files, user):   
+def MultiEnvio(files, user):
+    smtp_init()   
     # Loop del multi envio
     for file in files:
         #creando el email
@@ -534,7 +443,7 @@ def MultiEnvio(files, user):
         #    server.login(sender_email, password)
             
         s.sendmail(radr, user, msg.as_string())
-
+        s.close()
         #print('Enviado un ' +tipo+' a '+cliente )
         #print('contenido: '+text)
         if os.path.exists(file):
@@ -565,6 +474,7 @@ def analyze_msg(raws, a):
             else:
                 try:
                     arg = text.split(' ', 1)[1]
+                    arg =  arg.replace("\n", "").strip()
                 except IndexError:
                     arg = '?'
                 return [cmd, arg]
@@ -574,53 +484,13 @@ def analyze_msg(raws, a):
             else:
                 try:
                     arg = text.split(' ', 1)[1]
+                    arg =  arg.replace("\n", "").strip()
                 except IndexError:
                     arg = '?'
                 return [cmd, arg]
     else:
         return False
-    
-    
 
-"""def analyze_msg(raws, a):
-    global cliente
-    msg = pyzmail.PyzMessage.factory(raws[a][b'BODY[]'])
-    frm = msg.get_addresses('from')
-    cliente = frm[0][1] # obtenemos a quien responder la solicitud      
-    #print(cliente)
-    # Administracion del bot
-    if frm[0][1] != admin:
-        print('Cliente: '+cliente)
-        text = msg.text_part.get_payload().decode(msg.text_part.charset)
-        cmds = text.replace('\r\n', '').split(' ', 1)
-        #print('Comando solicitado: '+cmds)
-        if cmds[0] not in commands:
-             #Para USUARIOS
-             #verificando si existe el comando
-            #print("El comando %s no es válido" % cmds[0])
-            return False
-        else: # si no hay accion asignamos un esacio de array
-            try:
-                cmds[1]
-                return cmds
-            except IndexError:
-                cmds.append('?')
-                return cmds
-    else: #Para ADMIN
-        #print('Admin: ' + admin)
-        text = msg.text_part.get_payload().decode(msg.text_part.charset)
-        cmds = text.replace('\r\n', '').split(' ', 1)
-        if cmds[0] not in admincommand:
-         #verificando si existe el comando
-        #print("El comando %s no es válido" % cmds[0])
-            return False
-        else: # si no hay accion asignamos un esacio de array
-            try:
-                cmds[1]
-                return cmds
-            except IndexError:
-                cmds.append('?')
-                return cmds"""
 
 
 
