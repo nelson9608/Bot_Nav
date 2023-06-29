@@ -254,7 +254,7 @@ def DescargaArchivo(url):
 
     # Si el archivo es menor a 10MB, lo comprimimos en un archivo zip
     if file_size < chunk_size:
-        zip_file_name = nombre_archivo + '.zip'
+        zip_file_name = nombre_archivo + '.dat'
         with pyzipper.AESZipFile(zip_file_name, 'w', compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES) as zip_file:        
             zip_file.setpassword(password.encode())
             zip_file.write(nombre_archivo)
