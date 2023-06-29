@@ -219,56 +219,55 @@ def Leer_Report(string):
 
 
 #Descarga de archivos         
-def DescargaArchivo(string):
+def DescargaArchivo(url):
     # Obtener el nombre del archivo de la URL
-    nombre_archivo = os.path.basename(string)
+    nombre_archivo = os.path.basename(url)
     usr = cliente
+    
     # Comprobar si el archivo existe o está disponible para su descarga
     headers = {'User-Agent': 'Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14'}
-    respuesta = requests.head(string, headers=headers)
-    print(respuesta)
-    if respuesta.status_code != 200:
-        print("El archivo no existe o no está disponible para su descarga")
-        #return []
-    else:
-        # Descargar el archivo
-        print('Descargando... sea paciente')
-        #respuesta = requests.get(string, headers=headers)
-        with open(nombre_archivo, 'wb') as archivo:
-            archivo.write(respuesta.content)
-        
-        # Compactar y picar
-        lista = []
-        chunk_size = 10 *1024 *1024
-        file_object = open(nombre_archivo, 'rb')
-        file_size = os.stat(nombre_archivo).st_size
-        # Si el archivo es menor a 10MB, lo comprimimos en un archivo zip
-        if file_size < chunk_size:
-            zip_file_name = nombre_archivo + '.zip'
-            zip_file = zipfile.ZipFile(zip_file_name, 'w')
+    try:
+        respuesta = requests.head(url, headers=headers)
+        respuesta.raise_for_status()  # Lanza una excepción si hay un error en la respuesta
+    except requests.exceptions.HTTPError as err:
+        print(f"Error al descargar el archivo: {err}")
+        return ('Error al descargar el archivo', 'text')
+    
+    # Descargar el archivo
+    print('Descargando... sea paciente')
+    try:
+        with requests.get(url, headers=headers, stream=True) as r:
+            r.raise_for_status()
+            with open(nombre_archivo, 'wb') as archivo:
+                for chunk in r.iter_content(chunk_size=8192):
+                    archivo.write(chunk)
+    except requests.exceptions.RequestException as err:
+        print(f"Error al descargar el archivo: {err}")
+        return ('Error al descargar el archivo', 'text')
+    
+    # Compactar y picar
+    lista = []
+    chunk_size = 10 * 1024 * 1024
+    file_size = os.stat(nombre_archivo).st_size
+    
+    if file_size < chunk_size:
+        zip_file_name = nombre_archivo + '.zip'
+        with zipfile.ZipFile(zip_file_name, 'w') as zip_file:
             zip_file.write(nombre_archivo)
-            zip_file.close()
-            lista.append(zip_file_name)
-        else:
-            # Calcula el número de volúmenes
-            chunk_count = int(file_size / chunk_size)
+        lista.append(zip_file_name)
+    else:
+        chunk_count = file_size // chunk_size
+        with open(nombre_archivo, 'rb') as file_object:
             for i in range(chunk_count):
-                # Abre el archivo de destino
                 output_file_name = f'{nombre_archivo}.{i+1:03d}'
-                output_file_object = open(output_file_name, 'wb')
-                # Lee el tamaño del volumen
-                data = file_object.read(chunk_size)
-                # Escribe el volumen
-                output_file_object.write(data)
-                output_file_object.close()
+                with open(output_file_name, 'wb') as output_file_object:
+                    data = file_object.read(chunk_size)
+                    output_file_object.write(data)
                 lista.append(output_file_name)
-        file_object.close()
-            
-        # Retornar la lista de nombres de cada archivo zip obtenido
-        print (lista_nombres_archivos_zip)
-        MultiEnvio (lista, usr)
-        #os.remove(nombre_archivo)
-        return('Terminado!!', 'text')
+                
+    MultiEnvio(lista, usr)
+    
+    return ('Terminado!!', 'text')
     
         # Retornar una lista con el nombre del archivo descargado
         #print (nombre_archivo)          
