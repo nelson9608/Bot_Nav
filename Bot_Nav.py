@@ -435,7 +435,7 @@ def MultiEnvio(files, user):
         msg['From'] = radr
         msg['To'] = user
         msg['Subject'] = ""
-        msg.attach(MIMEText('La contraseña para los zip es: bot'))
+        msg.attach(MIMEText('Instrucciones:\nAl descargar el archivo lo veras con extensión .dat\nGuárdalo con extensión .zip si lo permite o renómbralo después de guardado.\nAl  extraerlo solicitará una contraseña, utiliza:  bot'))
 
         # Adjuntando el archivo
         with open(file, 'rb') as f:
