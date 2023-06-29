@@ -430,21 +430,16 @@ def MultiEnvio(files, user):
         msg['From'] = radr
         msg['To'] = user
         msg['Subject'] = ""
-        msg.attach(MIMEText('Se supone es un texto'))
+        #msg.attach(MIMEText('Se supone es un texto'))
 
         # preparandolos
         with open(file, 'rb') as f:
             attachment = MIMEApplication(f.read())
             msg.attach(attachment)
-
-        # enviandolo
-        #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-        #    server.login(sender_email, password)
-            
+   
         s.sendmail(radr, user, msg.as_string())
         s.close()
-        #print('Enviado un ' +tipo+' a '+cliente )
-        #print('contenido: '+text)
+
         if os.path.exists(file):
             os.remove(file)
 #---------------------------------------------------------------------------
