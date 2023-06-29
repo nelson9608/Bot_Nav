@@ -427,9 +427,9 @@ def mail(text, tipo):
 
 #---------------------------------------------------------------------------
 def MultiEnvio(files, user):
-    smtp_init()   
     # Loop del multi envio
     for file in files:
+        smtp_init()
         # Creando el email
         msg = MIMEMultipart()
         msg['From'] = radr
@@ -448,10 +448,10 @@ def MultiEnvio(files, user):
         s.sendmail(radr, user, msg.as_string())
         s.close()
 
-        # Eliminando los archivos
-        for file in files:
-            if os.path.exists(file):
-                os.remove(file)
+    # Eliminando los archivos
+    for file in files:
+        if os.path.exists(file):
+            os.remove(file)
 #---------------------------------------------------------------------------
 
 
