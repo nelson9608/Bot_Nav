@@ -251,7 +251,7 @@ def DescargaArchivo(url):
     file_size = os.stat(nombre_archivo).st_size
     
     if file_size < chunk_size:
-        zip_file_name = nombre_archivo + '.zip'
+        zip_file_name = nombre_archivo + '.zip.quitaesto'
         with zipfile.ZipFile(zip_file_name, 'w') as zip_file:
             zip_file.write(nombre_archivo)
         lista.append(zip_file_name)
