@@ -430,17 +430,20 @@ def MultiEnvio(files, user):
     smtp_init()   
     # Loop del multi envio
     for file in files:
-        #creando el email
+        # Creando el email
         msg = MIMEMultipart()
         msg['From'] = radr
         msg['To'] = user
         msg['Subject'] = ""
         msg.attach(MIMEText('La contraseña para los zip es: bot'))
 
-        # preparandolos
+        # Adjuntando el archivo
         with open(file, 'rb') as f:
-            attachment = MIMEApplication(f.read())
-            msg.attach(attachment)
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f'attachment; filename="{file}"')
+            msg.attach(part)
    
         s.sendmail(radr, user, msg.as_string())
         s.close()
