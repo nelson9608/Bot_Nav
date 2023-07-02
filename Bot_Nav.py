@@ -155,7 +155,7 @@ def Buscador(string):
    
 #Chat con la AI   
 def Bot_GPT(string):
-    print(string)
+    
     if len(string)>500:
         return ('Lo sentimos, la solicitud no debe exceder los 500 caracteres.', 'text')
     else:
@@ -170,10 +170,10 @@ def Bot_GPT(string):
             
         # Concatena los mensajes anteriores para crear un contexto
         context = '\n'.join(conversation)
-        
+        print(f"{context}\n {string}\nBot:")
         # llamada a la respuesta
         response = openai.Completion.create(
-            engine="curie",#"text-davinci-003"
+            engine="text-davinci-003",
             prompt=(f"{context}\n {string}\nBot:"),
             max_tokens=500,
             temperature=0.5,
