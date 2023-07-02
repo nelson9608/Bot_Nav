@@ -155,6 +155,7 @@ def Buscador(string):
    
 #Chat con la AI   
 def Bot_GPT(string):
+    print(string)
     if len(string)>500:
         return ('Lo sentimos, la solicitud no debe exceder los 500 caracteres.', 'text')
     else:
