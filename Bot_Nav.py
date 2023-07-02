@@ -80,7 +80,7 @@ def Help(string):
     /ayuda Presenta esta ayuda.\n
     /contacto Muestra el contacto del diseñador.\n
     /reporte Crea un reporte de errores encontrados, o solicitudes al creador.\n
-    /bot Realiza una pregunta al bot.\n 
+    /bot Realiza una pregunta al bot.(No exceder los 500 caracteres)\n 
     /botimg Crea una imagen con AI desde una descripción\n
     /web Busca una palabra, frase o dirección URL en la web devolviendo la página html asociada.\n
     /descarga Descarga un archivo desde una URL.\n
@@ -98,7 +98,7 @@ def AdminHelp(string):
     /contacto Muestra el creador (solo con fines de pruebas).\n
     /reporte Agrega un reporte (solo con fines de pruebas).\n 
     /leer Lee los reportes echos por los usuarios.\n
-    /bot Realiza una pregunta al bot.\n
+    /bot Realiza una pregunta al bot.(No exceder los 500 caracteres)\n 
     /botimg Crea una imagen con AI desde una descripción\n 
     /web Busca una palabra, frase o dirección URL en la web devolviendo la página html asociada.\n
     /descarga Descarga un archivo desde una URL.\n
@@ -155,34 +155,37 @@ def Buscador(string):
    
 #Chat con la AI   
 def Bot_GPT(string):
-    openai.api_key = ai_token
-    
-    # Agrega el mensaje a la conversación
-    conversation.append(string)
-    # Si la conversación tiene más de 20 mensajes
-    # elimina el mensaje más antiguo
-    if len(conversation) > 6:
-        conversation.pop(0)
+    if len(string)>500:
+        return ('Lo sentimos, la solicitud no debe exceder los 500 caracteres.', 'text')
+    else:
+        openai.api_key = ai_token
         
-    # Concatena los mensajes anteriores para crear un contexto
-    context = '\n'.join(conversation)
-    
-    # llamada a la respuesta
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=(f"{context}\n {string}\nBot:"),
-        max_tokens=1000,
-        temperature=0.5,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-    )
-    # Agrega la respuesta a la conversación
-    bot_response = response.choices[0].text.strip()
-    conversation.append(bot_response)
-    
-    return(bot_response,'text')
-    #return(response.choices[0].text,'text')
+        # Agrega el mensaje a la conversación
+        conversation.append(string)
+        # Si la conversación tiene más de 20 mensajes
+        # elimina el mensaje más antiguo
+        if len(conversation) > 6:
+            conversation.pop(0)
+            
+        # Concatena los mensajes anteriores para crear un contexto
+        context = '\n'.join(conversation)
+        
+        # llamada a la respuesta
+        response = openai.Completion.create(
+            engine="curie",#"text-davinci-003"
+            prompt=(f"{context}\n {string}\nBot:"),
+            max_tokens=500,
+            temperature=0.5,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+        )
+        # Agrega la respuesta a la conversación
+        bot_response = response.choices[0].text.strip()
+        conversation.append(bot_response)
+        
+        return(bot_response,'text')
+        #return(response.choices[0].text,'text')
 
         
 
