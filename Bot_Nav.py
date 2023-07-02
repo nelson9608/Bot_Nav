@@ -161,7 +161,7 @@ def Bot_GPT(string):
     conversation.append(string)
     # Si la conversación tiene más de 20 mensajes
     # elimina el mensaje más antiguo
-    if len(conversation) > 20:
+    if len(conversation) > 6:
         conversation.pop(0)
         
     # Concatena los mensajes anteriores para crear un contexto
