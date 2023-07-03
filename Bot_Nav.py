@@ -223,11 +223,11 @@ def Leer_Report(string):
 
 
 #Descarga de archivos         
-def DescargaArchivo(url):
+def DescargaArchivo(url):  
     # Obtener el nombre del archivo de la URL
     parcial = os.path.basename(url)
-    nombre_archivo_t = parcial.split('?', 1)
-    nombre_archivo = nombre_archivo_t[0]
+    #nombre_archivo_t = parcial.split('?', 1)
+    #nombre_archivo = nombre_archivo_t[0]
     
     usr = cliente
     
@@ -236,9 +236,13 @@ def DescargaArchivo(url):
     try:
         respuesta = requests.head(url, headers=headers)
         respuesta.raise_for_status()  # Lanza una excepción si hay un error en la respuesta
+        #cambio*****
+        content_disposition = respuesta.headers.get('Content-Disposition')
+        if content_disposition:
+            nombre_archivo = content_disposition.split('filename=')[1]
+            print(nombre_archivo)
     except requests.exceptions.HTTPError as err:
-        #print(f"Error al descargar el archivo: {err}")
-        return ('Error al descargar el archivo', 'text')
+        return (f'Error al descargar el archivo: {err}', 'text')
     
     # Descargar el archivo
     print('Descargando... sea paciente')
@@ -249,12 +253,11 @@ def DescargaArchivo(url):
                 for chunk in r.iter_content(chunk_size=8192):
                     archivo.write(chunk)
     except requests.exceptions.RequestException as err:
-        #print(f"Error al descargar el archivo: {err}")
-        return ('Error al descargar el archivo', 'text')
+        return (f'Error al descargar el archivo: {err}', 'text')
     
-    # Compactar y picar
+    # Compactar o picar
     lista = []
-    password='bot'
+    #password='bot'
     chunk_size = 10 * 1024 * 1024
     file_object = open(nombre_archivo, 'rb')
     file_size = os.stat(nombre_archivo).st_size
@@ -263,9 +266,11 @@ def DescargaArchivo(url):
     if file_size < chunk_size:
         zip_file_name = nombre_archivo + '.dat'
         with pyzipper.AESZipFile(zip_file_name, 'w', compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES) as zip_file:        
-            zip_file.setpassword(password.encode())
+            #zip_file.setpassword(password.encode())
             zip_file.write(nombre_archivo)
         lista.append(zip_file_name)
+        # Eliminar el archivo original
+        os.remove(nombre_archivo)
     else:
         chunk_count = file_size // chunk_size
         with open(nombre_archivo, 'rb') as file_object:
@@ -275,18 +280,12 @@ def DescargaArchivo(url):
                     data = file_object.read(chunk_size)
                     output_file_object.write(data)
                 lista.append(output_file_name)
-                
-    MultiEnvio(lista, usr)
-    
+        # Eliminar el archivo original
+        os.remove(nombre_archivo)        
+    MultiEnvio(lista, usr)  
     return ('Terminado!!', 'text')
     
-        # Retornar una lista con el nombre del archivo descargado
-        #print (nombre_archivo)          
-#---------------------------------------------------------------------------------------------
- 
- 
- 
- 
+
  
  
  #Ejecutamos un Hilo por cada entrada de descarga
@@ -442,7 +441,7 @@ def MultiEnvio(files, user):
         msg['From'] = radr
         msg['To'] = user
         msg['Subject'] = ""
-        msg.attach(MIMEText('Instrucciones:\nAl descargar el archivo lo veras con extensión .dat\nGuárdalo con extensión .zip si lo permite o renómbralo después de guardado.\nAl  extraerlo solicitará una contraseña, utiliza:  bot'))
+        msg.attach(MIMEText('Instrucciones:\nAl descargar el archivo lo veras con extensión .dat\nGuárdalo con extensión .zip si lo permite o renómbralo después de guardado.\nAl  extraerlo si solicita una contraseña, utiliza:  bot'))
 
         # Adjuntando el archivo
         with open(file, 'rb') as f:
