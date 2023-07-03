@@ -225,7 +225,10 @@ def Leer_Report(string):
 #Descarga de archivos         
 def DescargaArchivo(url):
     # Obtener el nombre del archivo de la URL
-    nombre_archivo = os.path.basename(url)
+    parcial = os.path.basename(url2)
+    nombre_archivo_t = parcial.split('?', 1)
+    nombre_archivo = nombre_archivo_t[0]
+    
     usr = cliente
     
     # Comprobar si el archivo existe o está disponible para su descarga
