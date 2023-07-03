@@ -359,8 +359,7 @@ admincommand = {
 
 
 
-def imap_init():
-    global i
+def imap_init():  
     print(pwd)
     i = imapclient.IMAPClient(imapserver)
     c = i.login(radr, pwd)
@@ -368,7 +367,6 @@ def imap_init():
 
 
 def smtp_init():
-    global s
     s = smtplib.SMTP(smtpserver, smtpserverport,timeout=60) #quitar _SSL para gmail
     c = s.starttls()[0]
     if c != 220: # if c is not 220
