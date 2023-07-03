@@ -225,7 +225,7 @@ def Leer_Report(string):
 #Descarga de archivos         
 def DescargaArchivo(url):
     # Obtener el nombre del archivo de la URL
-    parcial = os.path.basename(url2)
+    parcial = os.path.basename(url)
     nombre_archivo_t = parcial.split('?', 1)
     nombre_archivo = nombre_archivo_t[0]
     
