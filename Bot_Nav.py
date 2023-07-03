@@ -22,7 +22,7 @@ from io import BytesIO
 imaplib._MAXLINE = 1000000
 global cliente
 s = None
-i = None
+i = imapclient.IMAPClient(imapserver)
 # Crea una lista para almacenar los mensajes
 conversation = []
 
