@@ -360,13 +360,15 @@ admincommand = {
 
 
 def imap_init():  
-    print(pwd)
+    #print(pwd)
+    global i
     i = imapclient.IMAPClient(imapserver)
     c = i.login(radr, pwd)
     i.select_folder('INBOX')
 
 
 def smtp_init():
+    global s
     s = smtplib.SMTP(smtpserver, smtpserverport,timeout=60) #quitar _SSL para gmail
     c = s.starttls()[0]
     if c != 220: # if c is not 220
@@ -377,6 +379,7 @@ def smtp_init():
 
 
 def get_unread():
+    global i
     i.select_folder('INBOX')
     uids = i.search(['UNSEEN'])
     if not uids:
@@ -387,6 +390,7 @@ def get_unread():
 
 
 def mail(text, tipo):
+    global s
     msg = MIMEMultipart()
     msg['From'] = radr
     msg['To'] = cliente
