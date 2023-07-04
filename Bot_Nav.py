@@ -21,8 +21,6 @@ from io import BytesIO
 # Ampliando la limitacion imap
 imaplib._MAXLINE = 1000000
 global cliente
-s = None
-i = imapclient.IMAPClient(imapserver)
 # Crea una lista para almacenar los mensajes
 conversation = []
 
@@ -361,8 +359,8 @@ admincommand = {
 
 def imap_init():  
     #print(pwd)
-    #global i
-    #i = imapclient.IMAPClient(imapserver)
+    global i
+    i = imapclient.IMAPClient(imapserver)
     c = i.login(radr, pwd)
     i.select_folder('INBOX')
 
