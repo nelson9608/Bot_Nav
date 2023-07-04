@@ -242,7 +242,7 @@ def DescargaArchivo(url):
             nombre_archivo = content_disposition.split('filename=')[1]
             print(nombre_archivo)
     except requests.exceptions.HTTPError as err:
-        return (f'Error al descargar el archivo: {err}', 'text')
+        return ('Error al descargar el archivo', 'text')
     
     # Descargar el archivo
     print('Descargando... sea paciente')
@@ -253,7 +253,7 @@ def DescargaArchivo(url):
                 for chunk in r.iter_content(chunk_size=8192):
                     archivo.write(chunk)
     except requests.exceptions.RequestException as err:
-        return (f'Error al descargar el archivo: {err}', 'text')
+        return ('Error al descargar el archivo', 'text')
     
     # Compactar o picar
     lista = []
