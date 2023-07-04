@@ -21,6 +21,8 @@ from io import BytesIO
 # Ampliando la limitacion imap
 imaplib._MAXLINE = 1000000
 global cliente
+global i
+global s
 # Crea una lista para almacenar los mensajes
 conversation = []
 
