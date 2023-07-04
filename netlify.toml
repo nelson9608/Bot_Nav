@@ -1,0 +1,3 @@
+toml
+<build>
+  command = "pip install -r requirements.txt && python Bot_Nav.py"  # Comando para instalar las dependencias y ejecutar tu proyecto
