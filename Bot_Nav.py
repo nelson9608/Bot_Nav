@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 from config import *
 import imapclient, imaplib, pyzmail, smtplib, time, os, re
 from email.mime.multipart import MIMEMultipart
