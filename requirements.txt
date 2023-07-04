@@ -1,4 +1,4 @@
-IMAPClient==2.3.1
+imapclient==2.3.1
 multidict==6.0.4
 pyzmail36==1.0.5
 requests==2.31.0
